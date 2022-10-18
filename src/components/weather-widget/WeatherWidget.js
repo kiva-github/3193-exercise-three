@@ -4,15 +4,30 @@ import { useMemo } from 'react'
 import './WeatherWidget.scss'
 
 // assets
-import partlySunny from '../../assets/weather/partly-sunny.png'
+import sunriseIcon from '../../assets/weather/sunrise.png'
+import sunsetIcon from '../../assets/weather/sunset.png'
 import windIcon from '../../assets/wind-icon.svg'
 import humidityIcon from '../../assets/humidity-icon.svg'
 import pressureIcon from '../../assets/pressure-icon.svg'
 
 // components
+import WeatherIcon from '../weather-icon/WeatherIcon'
 import WeatherAttribute from '../weather-widget-attribute/WeatherAttribute'
 
 export default function WeatherWidget({ weatherData }) {
+
+    const convertUnixTime = (t) => {
+        let suffix = 'AM'
+        const date = new Date(t * 1000)
+        let hours = date.getHours() + 4
+        if (hours > 12 ) {
+            hours -= 12
+            suffix = 'PM'
+        }
+        const minutes = date.getMinutes()
+        const formatttedTime = `${hours}:${minutes}${suffix}`
+        return formatttedTime
+    }
 
     const convertKelvin = (k) => {
         return Math.round((k - 273.15) * (9 / 5) + 32)
@@ -22,12 +37,18 @@ export default function WeatherWidget({ weatherData }) {
         return (p / 33.863886666667).toFixed(2)
     }
 
-    const highLowScale = () => {
-        const range = highTemp - lowTemp
-        return ((currTemp - lowTemp) / range) * 100
-    }
-
-    const { currTemp, cityName, description, humidity, wind, pressure, highTemp, lowTemp } = useMemo(() => {
+    const {
+        currTemp,
+        cityName,
+        description,
+        sunRise,
+        sunSet,
+        lowTemp,
+        highTemp,
+        wind,
+        humidity,
+        pressure,
+        } = useMemo(() => {
         const weatherMain = weatherData.main || {}
         const weather = weatherData || {}
         return {
@@ -38,9 +59,16 @@ export default function WeatherWidget({ weatherData }) {
             wind: weather.wind.speed.toFixed(1),
             pressure: convertPressure(weatherMain.pressure),
             highTemp: convertKelvin(weatherMain.temp_max),
-            lowTemp: convertKelvin(weatherMain.temp_min)
+            lowTemp: convertKelvin(weatherMain.temp_min),
+            sunRise: weather.sys.sunrise + weather.timezone,
+            sunSet: weather.sys.sunset + weather.timezone
         }
     }, [weatherData])
+
+    const highLowScale = () => {
+        const range = highTemp - lowTemp
+        return ((currTemp - lowTemp) / range) * 100
+    }
 
     const attributes = [
         {
@@ -67,11 +95,21 @@ export default function WeatherWidget({ weatherData }) {
         
     return (
         <div className='widget-container'>
-            <div className='img-container'>
-                <img src={partlySunny} alt='partly sunny' />
+            <WeatherIcon type={description} sunsetTime={sunSet}/>
+            <div className='daylight-scale'>
+                <div className='daylight-text'>
+                    <div className='text-container'>
+                        <img src={sunriseIcon} alt='sunrise icon' />
+                        <h4>{convertUnixTime(sunRise)}</h4>
+                    </div>
+                    <div className='text-container'>
+                        <img src={sunsetIcon} alt='sunrise icon' />
+                        <h4>{convertUnixTime(sunSet)}</h4>
+                    </div>
+                </div>        
             </div>
             <div className='center-info'>
-                <h1>{currTemp}</h1>
+                <h1>{currTemp}&#176;</h1>
                 <h2>{cityName}</h2>
                 <h4>{description}</h4>
             </div>

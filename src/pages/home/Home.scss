@@ -1,20 +1,28 @@
 .home-container {
+    align-items: center;
     display: flex;
-    gap: 30px;
     height: 100vh;
     justify-content: center;
-    padding-top: 50px;
 
     .component-container {
-        border-radius: 16px;
         position: relative;
-        width: 50%;
+
+        .component {
+            position: absolute;
+            width: 308px;
+        }
+
+        img {
+            width: 100%;
+        }
     }
 
     .input-container {
         display: flex;
         flex-direction: column;
         gap: 20px;
+        justify-content: center;
+        padding: 20px;
 
         input {
             height: 44px;
@@ -24,7 +32,7 @@
         button {
             cursor: pointer;
             height: 44px;
-            width: 44px;
+            width: 100%;
         }
 
         input, button {
@@ -35,6 +43,5 @@
             margin: 0;
             text-align: center;
         }
-
     }
 }
